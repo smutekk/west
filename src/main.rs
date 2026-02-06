@@ -1,13 +1,14 @@
 use clap::Parser;
 use dotenv::dotenv;
+use reqwest::{self, blocking};
+use serde::{Deserialize, Serialize};
 use std::env;
-// use reqwest::blocking;
 
 #[derive(Parser, Debug)]
 #[command(
     version,
     about = "Weather report written in Rust using OpenWeather",
-    override_usage = "uvi <COUNTRY PROVINCE CITY FORMAT>"
+    override_usage = "west <COUNTRY PROVINCE CITY FORMAT>"
 )]
 
 struct Args {
@@ -28,6 +29,8 @@ struct Args {
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     dotenv().ok();
 
+    let api_key = env::var("API");
+
     let args = Args::parse();
 
     let area = args.area;
@@ -35,9 +38,21 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let province_code = &area[1];
     let city_code = &area[2];
 
-    println!("{:?}", &country_code);
+    let api_str = api_key.unwrap().to_string();
 
-    let api_key = env::var("API");
+    let geo_url = format!(
+        "http://api.openweathermap.org/geo/1.0/direct?q={city_code},{province_code},{country_code}&limit=1&appid={api_str}"
+    );
+
+    let response = blocking::get(&geo_url)?;
+    let content = response.text();
+
+    // TODO: get lat and long from content
+
+    // println!("{:?}", &content);
+
+    println!("{}", &geo_url);
+    println!("{:?}", &country_code);
 
     Ok(())
 }
