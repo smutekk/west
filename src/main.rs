@@ -1,7 +1,7 @@
 use clap::Parser;
 use dotenv::dotenv;
 use reqwest::{self, blocking};
-use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use std::env;
 
 #[derive(Parser, Debug)]
@@ -14,22 +14,12 @@ use std::env;
 struct Args {
     /// ie.. CA ON TO
     area: Vec<String>,
-
-    // /// Or state if you're from one of THOSE countries
-    // #[arg(long)]
-    // province: String,
-
-    // #[arg(long)]
-    // city: String,
-    /// ie.. F for Ferenheit, C for Celcius
-    #[arg(long)]
-    format: String,
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     dotenv().ok();
 
-    let api_key = env::var("API");
+    let api_key = env::var("API").expect("API key not found");
 
     let args = Args::parse();
 
@@ -38,21 +28,34 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let province_code = &area[1];
     let city_code = &area[2];
 
-    let api_str = api_key.unwrap().to_string();
+    let api_str = api_key.to_string();
 
     let geo_url = format!(
         "http://api.openweathermap.org/geo/1.0/direct?q={city_code},{province_code},{country_code}&limit=1&appid={api_str}"
     );
 
-    let response = blocking::get(&geo_url)?;
-    let content = response.text();
+    let geo_response = blocking::get(&geo_url)?;
+    let geo_content = geo_response.text()?;
 
-    // TODO: get lat and long from content
+    let geo_v: Value = serde_json::from_str(&geo_content)?;
 
-    // println!("{:?}", &content);
+    let lat = geo_v[0]["lat"].as_f64().unwrap_or(0.0);
+    let lon = geo_v[0]["lon"].as_f64().unwrap_or(0.0);
 
-    println!("{}", &geo_url);
-    println!("{:?}", &country_code);
+    let wtr_url = format!(
+        "https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={api_str}"
+    );
+
+    let wtr_response = blocking::get(&wtr_url)?;
+    let wtr_content = wtr_response.text()?;
+
+    let wtr_v: Value = serde_json::from_str(&wtr_content)?;
+
+    let current_temp = wtr_v["main"]["temp"].as_f64().unwrap_or(0.0);
+
+    let celcius_temp = current_temp - 273.15;
+
+    println!("{}", celcius_temp.floor());
 
     Ok(())
 }
