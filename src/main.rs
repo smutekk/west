@@ -13,6 +13,7 @@ use std::env;
 
 struct Args {
     /// ie.. CA ON TO
+    #[arg(default_values = &["CA", "ON", "TO"])]
     area: Vec<String>,
 }
 
