@@ -1,5 +1,5 @@
 # west
 Weather report written in Rust using OpenWeather.
 
-Only in celcius!!!
+Only in celsius!!!
 
