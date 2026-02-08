@@ -1,8 +1,8 @@
 use clap::Parser;
-use dotenvy::dotenv;
+use compile_dotenv::compile_env;
 use reqwest::{self, blocking};
 use serde_json::Value;
-use std::env;
+// use std::env;
 
 #[derive(Parser, Debug)]
 #[command(
@@ -18,9 +18,7 @@ struct Args {
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    dotenv().ok();
-
-    let api_key = env::var("API").expect("API key not found");
+    let api_key = compile_env!("API");
 
     let args = Args::parse();
 
