@@ -1,5 +1,5 @@
 use clap::Parser;
-use dotenv::dotenv;
+use dotenvy::dotenv;
 use reqwest::{self, blocking};
 use serde_json::Value;
 use std::env;
