@@ -16,12 +16,17 @@ use std::collections::HashMap;
 
 struct Args {
     /// ie.. CA ON TO
-    #[arg(short)]
+    #[arg(long)]
     area: Option<Vec<String>>,
     // #[arg(long)]
     // forecast: Option<bool>, // probably not, forecast api is weird
+    /// Wind speed in metres/second
     #[arg(short)]
     wind: bool,
+
+    /// Fahrenheit
+    #[arg(short)]
+    fahrenheit: bool,
 }
 
 macro_rules! map(
@@ -110,7 +115,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let current_cond = wtr_v["weather"][0]["main"].as_str().unwrap_or("Sunny");
     let current_wind = wtr_v["wind"]["speed"].as_f64().unwrap_or(0.0);
 
-    let celsius_temp = current_temp - 273.15;
+    let mut celsius_temp = current_temp - 273.15;
+
+    if args.fahrenheit {
+        celsius_temp = celsius_temp * 1.8 + 32.0;
+    }
 
     if !args.wind {
         println!("{}C {}", celsius_temp.floor(), icons[current_cond]);
