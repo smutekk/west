@@ -1,6 +1,9 @@
 [package]
 edition = "2024"
 name = "west"
+description = "Current temperature fetcher written in Rust using openweather"
+license = "none"
+readme = "./README.md"
 version = "0.0.1"
 authors = ["kkettums"]
 

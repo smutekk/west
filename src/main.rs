@@ -1,8 +1,11 @@
+// TODO: idk maybe like weather emojis like how wttr does it
+
 use clap::Parser;
 use compile_dotenv::compile_env;
 use geolocation;
 use reqwest::{self, blocking};
 use serde_json::Value;
+use std::collections::HashMap;
 
 #[derive(Parser, Debug)]
 #[command(
@@ -17,11 +20,28 @@ struct Args {
     area: Option<Vec<String>>,
 }
 
+macro_rules! map(
+    { $($key:expr => $value:expr),+ } => {
+        {
+            let mut m = HashMap::new();
+            $(
+                m.insert($key, $value);
+            )+
+            m
+        }
+     };
+);
+
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let api_key = compile_env!("API");
     let api_str = api_key.to_string();
 
     let args = Args::parse();
+
+    let icons = map!("Rain" => "",
+                    "Clouds" => "",
+                    "Snow" => "",
+                    "Sunny" => "");
 
     let country_code;
     let province_code;
@@ -37,13 +57,15 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             country_code = &area[0];
             province_code = &area[1];
             city_code = &area[2];
-            println!("Args specified");
+            // println!("Args specified");
 
             let geo_url = format!(
                 "http://api.openweathermap.org/geo/1.0/direct?q={city_code},{province_code},{country_code}&limit=1&appid={api_str}"
             );
 
             let geo_response = blocking::get(&geo_url)?;
+            // println!("Geo response: {:?}", geo_response.status());
+
             let geo_content = geo_response.text()?;
 
             let geo_v: Value = serde_json::from_str(&geo_content)?;
@@ -77,10 +99,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let wtr_v: Value = serde_json::from_str(&wtr_content)?;
 
     let current_temp = wtr_v["main"]["temp"].as_f64().unwrap_or(0.0);
+    let current_cond = wtr_v["weather"][0]["main"].as_str().unwrap_or("Sunny");
 
-    let celcius_temp = current_temp - 273.15;
+    let celsius_temp = current_temp - 273.15;
 
-    println!("{}", celcius_temp.floor());
+    println!("{}C {}", celsius_temp.floor(), icons[current_cond]);
 
     Ok(())
 }
