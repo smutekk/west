@@ -4,7 +4,7 @@ name = "west"
 description = "Current temperature fetcher written in Rust using openweather"
 license = "none"
 readme = "./README.md"
-version = "0.0.1"
+version = "1.0.0"
 authors = ["kkettums"]
 
 [dependencies]
