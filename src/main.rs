@@ -1,3 +1,5 @@
+//TODO:
+
 use clap::Parser;
 use compile_dotenv::compile_env;
 use geolocation;
@@ -14,8 +16,12 @@ use std::collections::HashMap;
 
 struct Args {
     /// ie.. CA ON TO
-    #[arg()]
+    #[arg(short)]
     area: Option<Vec<String>>,
+    // #[arg(long)]
+    // forecast: Option<bool>, // probably not, forecast api is weird
+    #[arg(short)]
+    wind: bool,
 }
 
 macro_rules! map(
@@ -102,10 +108,17 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let current_temp = wtr_v["main"]["feels_like"].as_f64().unwrap_or(0.0);
     let current_cond = wtr_v["weather"][0]["main"].as_str().unwrap_or("Sunny");
+    let current_wind = wtr_v["wind"]["speed"].as_f64().unwrap_or(0.0);
 
     let celsius_temp = current_temp - 273.15;
 
-    println!("{}C {}", celsius_temp.floor(), icons[current_cond]);
+    if !args.wind {
+        println!("{}C {}", celsius_temp.floor(), icons[current_cond]);
+    } else {
+        let wind_speed = current_wind / 1.0;
+
+        println!("{}m/s", wind_speed)
+    }
 
     Ok(())
 }
