@@ -1,5 +1,3 @@
-// TODO: idk maybe like weather emojis like how wttr does it
-
 use clap::Parser;
 use compile_dotenv::compile_env;
 use geolocation;
@@ -38,10 +36,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let args = Args::parse();
 
-    let icons = map!("Rain" => "",
-                    "Clouds" => "",
-                    "Snow" => "",
-                    "Sunny" => "");
+    let icons = map! {
+    "Rain" => "",
+    "Thunderstorm" => "",
+    "Drizzle" => "",
+    "Clouds" => "",
+    "Snow" => "",
+    "Sunny" => "",
+    "Clear" => ""};
 
     let country_code;
     let province_code;
