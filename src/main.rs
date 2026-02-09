@@ -100,7 +100,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let wtr_v: Value = serde_json::from_str(&wtr_content)?;
 
-    let current_temp = wtr_v["main"]["temp"].as_f64().unwrap_or(0.0);
+    let current_temp = wtr_v["main"]["feels_like"].as_f64().unwrap_or(0.0);
     let current_cond = wtr_v["weather"][0]["main"].as_str().unwrap_or("Sunny");
 
     let celsius_temp = current_temp - 273.15;
