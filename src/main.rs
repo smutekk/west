@@ -5,7 +5,6 @@ use compile_dotenv::compile_env;
 use geolocation;
 use reqwest::{self, blocking};
 use serde_json::Value;
-use std::collections::HashMap;
 
 #[derive(Parser, Debug)]
 #[command(
@@ -29,33 +28,11 @@ struct Args {
     fahrenheit: bool,
 }
 
-macro_rules! map(
-    { $($key:expr => $value:expr),+ } => {
-        {
-            let mut m = HashMap::new();
-            $(
-                m.insert($key, $value);
-            )+
-            m
-        }
-     };
-);
-
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let api_key = compile_env!("API");
     let api_str = api_key.to_string();
 
     let args = Args::parse();
-
-    let icons = map! {
-    "Rain" => "",
-    "Thunderstorm" => "",
-    "Drizzle" => "",
-    "Clouds" => "",
-    "Snow" => "",
-    "Sunny" => "",
-    "Clear" => ""};
-
     let country_code;
     let province_code;
     let city_code;
@@ -117,12 +94,22 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let mut celsius_temp = current_temp - 273.15;
 
+    let icon = match current_cond {
+        "Rain" => "",
+        "Thunderstorm" => "",
+        "Drizzle" => "",
+        "Clouds" => "",
+        "Snow" => "",
+        "Sunny" => "",
+        _ => "",
+    };
+
     if args.fahrenheit {
         celsius_temp = celsius_temp * 1.8 + 32.0;
     }
 
     if !args.wind {
-        println!("{}C {}", celsius_temp.floor(), icons[current_cond]);
+        println!("{}C {}", celsius_temp.floor(), icon);
     } else {
         let wind_speed = current_wind / 1.0;
 

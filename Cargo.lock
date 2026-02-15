@@ -1463,7 +1463,7 @@ dependencies = [
 
 [[package]]
 name = "west"
-version = "0.0.1"
+version = "1.0.0"
 dependencies = [
  "clap",
  "compile-dotenv",
